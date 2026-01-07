@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="id">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Movie-Review</title>
+		<style>
+			:root {
+				color-scheme: dark;
+			}
+
+			* {
+				box-sizing: border-box;
+				margin: 0;
+				padding: 0;
+			}
+
+			body {
+				font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+					sans-serif;
+				background: #020617;
+				color: #e5e7eb;
+				min-height: 100vh;
+				display: flex;
+				align-items: stretch;
+				justify-content: center;
+			}
+
+			.app {
+				width: 100%;
+				max-width: 960px;
+				padding: 16px;
+			}
+
+			header {
+				margin-bottom: 16px;
+			}
+
+			header h1 {
+				font-size: 1.4rem;
+				margin-bottom: 4px;
+			}
+
+			header p {
+				font-size: 0.85rem;
+				color: #9ca3af;
+			}
+
+			.tabs {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 8px;
+				margin: 16px 0;
+			}
+
+			.tab-btn {
+				flex: 1 1 120px;
+				padding: 10px 12px;
+				border-radius: 999px;
+				border: 1px solid #1f2937;
+				background: #020617;
+				color: #e5e7eb;
+				font-size: 0.9rem;
+				cursor: pointer;
+				text-align: center;
+				transition: background 0.15s, border-color 0.15s;
+			}
+
+			.tab-btn.active {
+				background: #0f766e;
+				border-color: #14b8a6;
+			}
+
+			.tab-btn:focus-visible {
+				outline: 2px solid #22c55e;
+				outline-offset: 2px;
+			}
+
+			.content {
+				border-radius: 12px;
+				border: 1px solid #1f2937;
+				background: #020617;
+				padding: 12px;
+				min-height: 240px;
+				overflow-y: auto;
+			}
+
+			.section {
+				display: none;
+			}
+
+			.section.active {
+				display: block;
+			}
+
+			.status {
+				font-size: 0.85rem;
+				color: #9ca3af;
+				margin-bottom: 8px;
+			}
+
+			.list {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				font-size: 0.9rem;
+			}
+
+			.card {
+				padding: 8px 10px;
+				border-radius: 8px;
+				border: 1px solid #111827;
+				background: #030712;
+			}
+
+			.card-title {
+				font-weight: 600;
+				margin-bottom: 2px;
+			}
+
+			.card-subtitle {
+				font-size: 0.8rem;
+				color: #9ca3af;
+				margin-bottom: 4px;
+			}
+
+			.card-body {
+				font-size: 0.85rem;
+				color: #d1d5db;
+			}
+
+			.badge {
+				display: inline-block;
+				padding: 2px 6px;
+				border-radius: 999px;
+				border: 1px solid #1f2937;
+				font-size: 0.7rem;
+				color: #9ca3af;
+				margin-right: 4px;
+			}
+
+			.watchlist-input {
+				display: flex;
+				gap: 8px;
+				margin-bottom: 8px;
+			}
+
+			.watchlist-input input {
+				flex: 1;
+				padding: 8px 10px;
+				border-radius: 999px;
+				border: 1px solid #1f2937;
+				background: #020617;
+				color: #e5e7eb;
+				font-size: 0.9rem;
+			}
+
+			.watchlist-input button {
+				padding: 8px 12px;
+				border-radius: 999px;
+				border: 1px solid #1f2937;
+				background: #0f766e;
+				color: #e5e7eb;
+				font-size: 0.9rem;
+				cursor: pointer;
+				white-space: nowrap;
+			}
+
+			.watchlist-input button:focus-visible {
+				outline: 2px solid #22c55e;
+				outline-offset: 2px;
+			}
+
+			.json-dump {
+				margin-top: 6px;
+				font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+					"Liberation Mono", "Courier New", monospace;
+				font-size: 0.75rem;
+				background: #020617;
+				border-radius: 8px;
+				padding: 6px;
+				max-height: 160px;
+				overflow: auto;
+				border: 1px solid #111827;
+			}
+
+			footer {
+				margin-top: 10px;
+				font-size: 0.75rem;
+				color: #6b7280;
+				text-align: center;
+			}
+
+			.user-info {
+				margin-top: 4px;
+				font-size: 0.8rem;
+				color: #9ca3af;
+			}
+
+			.auth-overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: radial-gradient(circle at top, #0b1120, #020617 55%);
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				z-index: 10;
+			}
+
+			.auth-card {
+				width: 100%;
+				max-width: 360px;
+				padding: 18px 20px;
+				border-radius: 16px;
+				border: 1px solid #1f2937;
+				background: rgba(15, 23, 42, 0.96);
+				box-shadow: 0 24px 64px rgba(0, 0, 0, 0.8);
+			}
+
+			.auth-card h2 {
+				font-size: 1.2rem;
+				margin-bottom: 6px;
+			}
+
+			.auth-subtitle {
+				font-size: 0.8rem;
+				color: #9ca3af;
+				margin-bottom: 12px;
+			}
+
+			.auth-label {
+				font-size: 0.8rem;
+				color: #9ca3af;
+				margin-bottom: 4px;
+				display: block;
+			}
+
+			.auth-input {
+				width: 100%;
+				padding: 9px 11px;
+				border-radius: 999px;
+				border: 1px solid #1f2937;
+				background: #020617;
+				color: #e5e7eb;
+				font-size: 0.9rem;
+				margin-bottom: 10px;
+			}
+
+			.auth-input:focus-visible {
+				outline: 2px solid #22c55e;
+				outline-offset: 2px;
+			}
+
+			.auth-actions {
+				display: flex;
+				gap: 8px;
+				margin-bottom: 6px;
+			}
+
+			.auth-btn {
+				flex: 1 1 0;
+				padding: 8px 10px;
+				border-radius: 999px;
+				border: 1px solid #1f2937;
+				background: #0f766e;
+				color: #e5e7eb;
+				font-size: 0.9rem;
+				cursor: pointer;
+			}
+
+			.auth-btn.secondary {
+				background: #020617;
+			}
+
+			#status-auth {
+				margin-top: 4px;
+				min-height: 32px;
+			}
+
+			.movie-overlay {
+				position: fixed;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background: rgba(15, 23, 42, 0.92);
+				display: none;
+				align-items: center;
+				justify-content: center;
+				z-index: 9;
+			}
+
+			.movie-card {
+				width: 100%;
+				max-width: 720px;
+				max-height: 80vh;
+				border-radius: 16px;
+				border: 1px solid #1f2937;
+				background: #020617;
+				padding: 14px 16px;
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+			}
+
+			.movie-card-header {
+				display: flex;
+				justify-content: space-between;
+				align-items: flex-start;
+				gap: 8px;
+			}
+
+			.movie-card-title {
+				font-size: 1rem;
+				font-weight: 600;
+			}
+
+			.movie-card-meta {
+				font-size: 0.8rem;
+				color: #9ca3af;
+				margin-top: 2px;
+			}
+
+			.movie-card-desc {
+				font-size: 0.85rem;
+				color: #d1d5db;
+				margin-top: 6px;
+			}
+
+			.movie-card-close {
+				border-radius: 999px;
+				border: 1px solid #1f2937;
+				background: #020617;
+				color: #e5e7eb;
+				font-size: 0.8rem;
+				padding: 4px 10px;
+				cursor: pointer;
+			}
+
+			.movie-reviews-list {
+				margin-top: 8px;
+				border-top: 1px solid #111827;
+				padding-top: 8px;
+				overflow-y: auto;
+				flex: 1 1 auto;
+			}
+
+			.review-form {
+				margin-bottom: 10px;
+				padding: 8px;
+				border-radius: 8px;
+				border: 1px solid #111827;
+				background: #030712;
+			}
+
+			.review-form-row {
+				display: flex;
+				gap: 8px;
+				margin-bottom: 6px;
+			}
+
+			.review-form-row select {
+				flex: 1 1 0;
+				padding: 6px 8px;
+				border-radius: 999px;
+				border: 1px solid #1f2937;
+				background: #020617;
+				color: #e5e7eb;
+				font-size: 0.85rem;
+			}
+
+			#review-comment {
+				width: 100%;
+				min-height: 60px;
+				resize: vertical;
+				border-radius: 8px;
+				border: 1px solid #1f2937;
+				background: #020617;
+				color: #e5e7eb;
+				font-size: 0.85rem;
+				padding: 6px 8px;
+			}
+
+			#btn-submit-review {
+				margin-top: 6px;
+				padding: 7px 10px;
+				border-radius: 999px;
+				border: 1px solid #1f2937;
+				background: #0f766e;
+				color: #e5e7eb;
+				font-size: 0.9rem;
+				cursor: pointer;
+			}
+
+			@media (max-width: 480px) {
+				.content {
+					min-height: 200px;
+				}
+
+				.card {
+					padding: 6px 8px;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div id="auth-overlay" class="auth-overlay">
+			<div class="auth-card">
+				<h2>Masuk ke Movie Hub</h2>
+				<p class="auth-subtitle">
+					Gunakan nama saja untuk membuat atau memilih akun.
+				</p>
+				<label for="auth-name" class="auth-label">Nama</label>
+				<input
+					id="auth-name"
+					type="text"
+					class="auth-input"
+					placeholder="Nama kamu, misal: joan"
+					autocomplete="off"
+				/>
+				<div class="auth-actions">
+					<button id="btn-login" class="auth-btn secondary">Masuk</button>
+					<button id="btn-register" class="auth-btn">Daftar</button>
+				</div>
+				<div id="status-auth" class="status">
+					Masuk jika nama sudah terdaftar,
+					atau daftar untuk membuat akun baru.
+				</div>
+			</div>
+		</div>
+
+		<div id="movie-overlay" class="movie-overlay">
+			<div class="movie-card">
+				<div class="movie-card-header">
+					<div>
+						<div id="movie-overlay-title" class="movie-card-title"></div>
+						<div id="movie-overlay-meta" class="movie-card-meta"></div>
+					</div>
+					<button id="btn-close-movie" class="movie-card-close">Tutup</button>
+				</div>
+				<div id="movie-overlay-desc" class="movie-card-desc"></div>
+				<button id="btn-add-watchlist" class="auth-btn secondary" style="margin-top:8px; padding-inline:12px; align-self:flex-start;">Tambah ke Watchlist</button>
+				<div id="movie-overlay-status" class="status" style="margin-top:4px;"></div>
+				<div id="movie-overlay-reviews" class="movie-reviews-list"></div>
+			</div>
+		</div>
+
+		<div class="app">
+			<header>
+				<h1>Movie Review</h1>
+				<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 4px;">
+					<div id="user-info" class="user-info">Belum login</div>
+					<button id="btn-logout" class="auth-btn secondary" style="padding-inline: 12px; flex: 0 0 auto;">Keluar</button>
+				</div>
+			</header>
+
+			<nav class="tabs" aria-label="Menu data">
+				<button class="tab-btn active" data-tab="movies">Movies</button>
+				<button class="tab-btn" data-tab="reviews">Reviews</button>
+				<button class="tab-btn" data-tab="watchlist">Watchlist</button>
+			</nav>
+
+			<main class="content" aria-live="polite">
+				<section id="section-movies" class="section active">
+					<div class="review-form">
+						<div class="review-form-row">
+							<select id="review-movie">
+								<option value="">-- Pilih film --</option>
+							</select>
+							<select id="review-rating">
+								<option value="5">Rating: 5</option>
+								<option value="4">Rating: 4</option>
+								<option value="3">Rating: 3</option>
+								<option value="2">Rating: 2</option>
+								<option value="1">Rating: 1</option>
+							</select>
+						</div>
+						<textarea
+							id="review-comment"
+							placeholder="Tulis review kamu di sini"
+						></textarea>
+						<button id="btn-submit-review">Kirim Review</button>
+						<div id="status-review-form" class="status"></div>
+					</div>
+					<div id="status-movies" class="status"></div>
+					<div id="list-movies" class="list"></div>
+				</section>
+
+				<section id="section-reviews" class="section">
+					<div id="status-reviews" class="status"></div>
+					<div id="list-reviews" class="list"></div>
+				</section>
+
+				<section id="section-users" class="section">
+					<div id="list-users" class="list"></div>
+				</section>
+
+				<section id="section-watchlist" class="section">
+					<div id="status-watchlist" class="status"></div>
+					<div id="list-watchlist" class="list"></div>
+				</section>
+			</main>
+
+			<footer></footer>
+		</div>
+
+		<script>
+			(function () {
+				const API = {
+					movies: "https://joan.tugastst.my.id/movies",
+					reviews: "https://joan.tugastst.my.id/reviews",
+					users: "https://huga.tugastst.my.id/users",
+					watchlist: "https://huga.tugastst.my.id/watchlist",
+				};
+
+				const cache = {
+					movies: null,
+					reviews: null,
+					users: null,
+					watchlist: null,
+				};
+
+				let currentUser = null;
+				const userInfoEl = document.getElementById("user-info");
+				const authOverlay = document.getElementById("auth-overlay");
+				const authNameInput = document.getElementById("auth-name");
+				const statusAuthEl = document.getElementById("status-auth");
+				const reviewMovieSelect = document.getElementById("review-movie");
+				const reviewRatingSelect = document.getElementById("review-rating");
+				const reviewCommentInput = document.getElementById("review-comment");
+				const statusReviewForm = document.getElementById("status-review-form");
+				const movieOverlay = document.getElementById("movie-overlay");
+				const movieOverlayTitle = document.getElementById("movie-overlay-title");
+				const movieOverlayMeta = document.getElementById("movie-overlay-meta");
+				const movieOverlayDesc = document.getElementById("movie-overlay-desc");
+				const movieOverlayStatus = document.getElementById("movie-overlay-status");
+				const movieOverlayReviews = document.getElementById("movie-overlay-reviews");
+				const btnAddWatchlist = document.getElementById("btn-add-watchlist");
+				let currentOverlayMovie = null;
+
+				const tabs = document.querySelectorAll(".tab-btn");
+				const sections = {
+					movies: document.getElementById("section-movies"),
+					reviews: document.getElementById("section-reviews"),
+					users: document.getElementById("section-users"),
+					watchlist: document.getElementById("section-watchlist"),
+				};
+
+				const statusEls = {
+					movies: document.getElementById("status-movies"),
+					reviews: document.getElementById("status-reviews"),
+					users: document.getElementById("status-users"),
+					auth: statusAuthEl,
+					movieReviews: movieOverlayStatus,
+					watchlist: document.getElementById("status-watchlist"),
+				};
+
+				const listEls = {
+					movies: document.getElementById("list-movies"),
+					reviews: document.getElementById("list-reviews"),
+					users: document.getElementById("list-users"),
+					watchlist: document.getElementById("list-watchlist"),
+				};
+
+				function normalizeName(value) {
+					return (value || "").toString().trim().toLowerCase();
+				}
+
+				function openMovieOverlay(movie) {
+					if (!movieOverlay) return;
+					currentOverlayMovie = movie || null;
+					if (movieOverlayTitle) {
+						movieOverlayTitle.textContent = movie.title || "(Tanpa judul)";
+					}
+					if (movieOverlayMeta) {
+						const year = movie.year ? String(movie.year) : "-";
+						const rating = movie.rating != null ? String(movie.rating) : "-";
+						const genres = Array.isArray(movie.genre)
+							? movie.genre.join(", ")
+							: movie.genre || "";
+						movieOverlayMeta.textContent =
+							"Tahun " + year + " • Rating " + rating + (genres
+								? " • " + genres
+								: "");
+					}
+					if (movieOverlayDesc) {
+						movieOverlayDesc.textContent = movie.description || "";
+					}
+					if (movieOverlayStatus) {
+						movieOverlayStatus.textContent = "";
+					}
+					if (movieOverlayReviews) {
+						movieOverlayReviews.innerHTML = "";
+					}
+					movieOverlay.style.display = "flex";
+				}
+
+				function closeMovieOverlay() {
+					if (!movieOverlay) return;
+					movieOverlay.style.display = "none";
+					currentOverlayMovie = null;
+				}
+
+				function updateUserInfo() {
+					if (!userInfoEl) return;
+					if (currentUser) {
+						userInfoEl.textContent = "Masuk sebagai " + currentUser.name;
+					} else {
+						userInfoEl.textContent = "Belum login";
+					}
+				}
+
+				function showAuth() {
+					if (authOverlay) {
+						authOverlay.style.display = "flex";
+						if (authNameInput) {
+							authNameInput.focus();
+						}
+					}
+				}
+
+				function hideAuth() {
+					if (authOverlay) {
+						authOverlay.style.display = "none";
+					}
+				}
+
+				function loadUserFromStorage() {
+					try {
+						const raw = localStorage.getItem("mh_user");
+						if (raw) {
+							const parsed = JSON.parse(raw);
+							if (parsed && parsed.id && parsed.name) {
+								currentUser = parsed;
+							}
+						}
+					} catch (e) {
+						console.warn("Gagal membaca user dari storage", e);
+					}
+					updateUserInfo();
+					if (!currentUser) {
+						showAuth();
+					} else {
+						hideAuth();
+					}
+				}
+
+				function setActiveTab(name) {
+					tabs.forEach((btn) => {
+						btn.classList.toggle("active", btn.dataset.tab === name);
+					});
+
+					Object.keys(sections).forEach((key) => {
+						sections[key].classList.toggle("active", key === name);
+					});
+				}
+
+				async function safeFetch(url, name) {
+
+					try {
+						const res = await fetch(url, { cache: "no-store" });
+						if (!res.ok) {
+							throw new Error("Status " + res.status);
+						}
+						const data = await res.json();
+						// Biarkan status sukses tetap seperti sebelumnya, tanpa pesan tambahan
+						return data;
+					} catch (err) {
+						console.error("Gagal fetch", name, err);
+						if (statusEls[name]) {
+							statusEls[name].textContent =
+								"Gagal mengambil data (" + err.message + "). Coba lagi.";
+						}
+						return null;
+					}
+				}
+
+				function clearList(name) {
+					listEls[name].innerHTML = "";
+				}
+
+				function truncate(str, max) {
+					if (!str || typeof str !== "string") return "";
+					return str.length > max ? str.slice(0, max - 1) + "…" : str;
+				}
+
+				function renderMovies(movies) {
+					clearList("movies");
+					const container = listEls.movies;
+
+					if (!Array.isArray(movies) || movies.length === 0) {
+						container.textContent = "Tidak ada film.";
+						return;
+					}
+
+					movies.forEach((movie) => {
+						const card = document.createElement("div");
+						card.className = "card";
+						card.style.cursor = "pointer";
+
+						const title = document.createElement("div");
+						title.className = "card-title";
+						title.textContent = movie.title || "(Tanpa judul)";
+
+						const subtitle = document.createElement("div");
+						subtitle.className = "card-subtitle";
+						const year = movie.year ? String(movie.year) : "-";
+						const rating = movie.rating != null ? String(movie.rating) : "-";
+						const genres = Array.isArray(movie.genre)
+							? movie.genre.join(", ")
+							: movie.genre || "";
+						subtitle.textContent =
+							"Tahun " + year + " • Rating " + rating + (genres
+								? " • " + genres
+								: "");
+
+						const body = document.createElement("div");
+						body.className = "card-body";
+						body.textContent = movie.description || "";
+
+						card.appendChild(title);
+						card.appendChild(subtitle);
+
+						if (movie.director) {
+							const dir = document.createElement("div");
+							dir.className = "card-subtitle";
+							dir.textContent = "Director: " + movie.director;
+							card.appendChild(dir);
+						}
+
+						if (body.textContent) {
+							card.appendChild(body);
+						}
+
+						// Klik card film akan membuka overlay dengan review film tersebut
+						card.addEventListener("click", async () => {
+							const movieId = movie.id;
+							if (!movieId) return;
+							openMovieOverlay(movie);
+							if (movieOverlayStatus) {
+								movieOverlayStatus.textContent =
+									"Memuat review untuk film ini...";
+							}
+							const data = await safeFetch(
+								API.reviews + "/movie/" + encodeURIComponent(movieId),
+								"movieReviews"
+							);
+							if (data) {
+								const items = Array.isArray(data)
+									? data
+									: Array.isArray(data.data)
+									? data.data
+									: [];
+								if (movieOverlayStatus) {
+									movieOverlayStatus.textContent =
+										items.length > 0
+											? "Menampilkan " + items.length + " review."
+											: "Belum ada review untuk film ini.";
+								}
+								renderMovieOverlayReviews(items);
+							}
+						});
+
+						container.appendChild(card);
+					});
+				}
+
+				function renderReviews(reviews) {
+					clearList("reviews");
+					const container = listEls.reviews;
+
+					if (!Array.isArray(reviews) || reviews.length === 0) {
+						container.textContent = "Belum ada review.";
+						return;
+					}
+
+					reviews.forEach((rev) => {
+						const card = document.createElement("div");
+						card.className = "card";
+
+						const title = document.createElement("div");
+						title.className = "card-title";
+						title.textContent = rev.username || "User " + (rev.userId || "-");
+
+						const subtitle = document.createElement("div");
+						subtitle.className = "card-subtitle";
+						const rating = rev.rating != null ? String(rev.rating) : "-";
+						const movieId = rev.movieId != null ? String(rev.movieId) : "-";
+						subtitle.textContent =
+							"Rating " + rating + " • Movie ID " + movieId;
+
+						const body = document.createElement("div");
+						body.className = "card-body";
+						body.textContent = truncate(rev.comment || "", 160);
+
+						card.appendChild(title);
+						card.appendChild(subtitle);
+						if (body.textContent) {
+							card.appendChild(body);
+						}
+
+						container.appendChild(card);
+					});
+				}
+
+				function renderMovieOverlayReviews(reviews) {
+					if (!movieOverlayReviews) return;
+					movieOverlayReviews.innerHTML = "";
+
+					if (!Array.isArray(reviews) || reviews.length === 0) {
+						movieOverlayReviews.textContent = "Belum ada review untuk film ini.";
+						return;
+					}
+
+					reviews.forEach((rev) => {
+						const card = document.createElement("div");
+						card.className = "card";
+
+						const title = document.createElement("div");
+						title.className = "card-title";
+						title.textContent = rev.username || "User " + (rev.userId || "-");
+
+						const subtitle = document.createElement("div");
+						subtitle.className = "card-subtitle";
+						const rating = rev.rating != null ? String(rev.rating) : "-";
+						subtitle.textContent = "Rating " + rating;
+
+						const body = document.createElement("div");
+						body.className = "card-body";
+						body.textContent = truncate(rev.comment || "", 160);
+
+						card.appendChild(title);
+						card.appendChild(subtitle);
+						if (body.textContent) {
+							card.appendChild(body);
+						}
+
+						movieOverlayReviews.appendChild(card);
+					});
+				}
+
+				function renderUsers(users) {
+					clearList("users");
+					const container = listEls.users;
+
+					if (!Array.isArray(users) || users.length === 0) {
+						container.textContent = "Tidak ada user.";
+						return;
+					}
+
+					users.forEach((user) => {
+						const card = document.createElement("div");
+						card.className = "card";
+
+						const title = document.createElement("div");
+						title.className = "card-title";
+						title.textContent =
+							user.username || user.name || "User ID " + (user.id || "-");
+
+						const subtitle = document.createElement("div");
+						subtitle.className = "card-subtitle";
+						const idText = user.id != null ? "ID " + user.id : "";
+						const emailText = user.email ? " • " + user.email : "";
+						subtitle.textContent = idText + emailText;
+
+						const raw = document.createElement("div");
+						raw.className = "json-dump";
+						raw.textContent = JSON.stringify(user, null, 2);
+
+						card.appendChild(title);
+						if (subtitle.textContent.trim()) {
+							card.appendChild(subtitle);
+						}
+						card.appendChild(raw);
+						container.appendChild(card);
+					});
+				}
+
+				function renderWatchlist(items) {
+					clearList("watchlist");
+					const container = listEls.watchlist;
+
+					if (!Array.isArray(items) || items.length === 0) {
+						container.textContent = "Belum ada film di watchlist.";
+						return;
+					}
+
+					items.forEach((entry) => {
+						const card = document.createElement("div");
+						card.className = "card";
+
+						const movie = entry.movie || {};
+						const title = document.createElement("div");
+						title.className = "card-title";
+						title.textContent = movie.title || "Film ID " + (entry.movieId || "-");
+
+						const subtitle = document.createElement("div");
+						subtitle.className = "card-subtitle";
+						const year = movie.year ? String(movie.year) : "-";
+						const rating = movie.rating != null ? String(movie.rating) : "-";
+						subtitle.textContent = "Tahun " + year + " • Rating " + rating;
+
+						const body = document.createElement("div");
+						body.className = "card-body";
+						body.textContent = truncate(movie.description || "", 180);
+
+						card.appendChild(title);
+						card.appendChild(subtitle);
+						if (body.textContent) {
+							card.appendChild(body);
+						}
+
+						container.appendChild(card);
+					});
+				}
+
+				function populateReviewMovieSelect(movies) {
+					if (!reviewMovieSelect) return;
+					const previous = reviewMovieSelect.value;
+					reviewMovieSelect.innerHTML = "";
+					const placeholder = document.createElement("option");
+					placeholder.value = "";
+					placeholder.textContent = "-- Pilih film --";
+					reviewMovieSelect.appendChild(placeholder);
+
+					if (!Array.isArray(movies)) return;
+					movies.forEach((movie) => {
+						const opt = document.createElement("option");
+						opt.value = movie.id;
+						opt.textContent = movie.title || "Film" + " (#" + movie.id + ")";
+						reviewMovieSelect.appendChild(opt);
+					});
+
+					if (previous && Array.from(reviewMovieSelect.options).some((o) => o.value === previous)) {
+						reviewMovieSelect.value = previous;
+					}
+				}
+
+				async function loadMoviesIfNeeded() {
+					if (cache.movies) return;
+					const data = await safeFetch(API.movies, "movies");
+					if (data) {
+						const items = Array.isArray(data)
+							? data
+							: Array.isArray(data.data)
+							? data.data
+							: [];
+						cache.movies = items;
+						renderMovies(items);
+						populateReviewMovieSelect(items);
+					}
+				}
+
+				async function loadReviewsIfNeeded() {
+					// Jika sudah pernah diambil, cukup render ulang dari cache
+					if (Array.isArray(cache.reviews)) {
+						renderReviews(cache.reviews);
+						return;
+					}
+					const data = await safeFetch(API.reviews, "reviews");
+					if (data) {
+						const items = Array.isArray(data)
+							? data
+							: Array.isArray(data.data)
+							? data.data
+							: [];
+						cache.reviews = items;
+						renderReviews(items);
+					}
+				}
+
+				async function loadUsersIfNeeded() {
+					if (cache.users) return;
+					const data = await safeFetch(API.users, "users");
+					if (data) {
+						const items = Array.isArray(data)
+							? data
+							: Array.isArray(data.data)
+							? data.data
+							: [];
+						cache.users = items;
+						renderUsers(items);
+					}
+				}
+
+					async function loadWatchlistForCurrentUser() {
+						if (!currentUser) {
+							if (statusEls.watchlist) {
+								statusEls.watchlist.textContent = "Masuk dulu untuk melihat watchlist.";
+							}
+							showAuth();
+							return;
+						}
+
+						if (statusEls.watchlist) {
+							statusEls.watchlist.textContent = "Memuat watchlist...";
+						}
+
+						const url = API.watchlist + "/" + encodeURIComponent(currentUser.id);
+						const data = await safeFetch(url, "watchlist");
+						if (!data) return;
+
+						const rawItems = Array.isArray(data)
+							? data
+							: Array.isArray(data.data)
+							? data.data
+							: [];
+
+						await loadMoviesIfNeeded();
+						const movies = Array.isArray(cache.movies) ? cache.movies : [];
+						const items = rawItems.map((entry) => {
+							const movie = movies.find(
+								(m) => String(m.id) === String(entry.movieId)
+							);
+							return {
+								userId: entry.userId,
+								movieId: entry.movieId,
+								movie: movie || null,
+							};
+						});
+						cache.watchlist = items;
+						if (statusEls.watchlist) {
+							statusEls.watchlist.textContent = "";
+						}
+						renderWatchlist(items);
+					}
+
+					async function addCurrentMovieToWatchlist() {
+						if (!currentOverlayMovie || !currentOverlayMovie.id) return;
+						if (!currentUser) {
+							if (movieOverlayStatus) {
+								movieOverlayStatus.textContent = "Masuk dulu untuk menambahkan ke watchlist.";
+							}
+							showAuth();
+							return;
+						}
+
+						if (movieOverlayStatus) {
+							movieOverlayStatus.textContent = "Menambahkan ke watchlist...";
+						}
+						try {
+							const res = await fetch(API.watchlist, {
+								method: "POST",
+								headers: { "Content-Type": "application/json" },
+								body: JSON.stringify({
+									userId: currentUser.id,
+									movieId: String(currentOverlayMovie.id),
+								}),
+							});
+							if (!res.ok) {
+								throw new Error("Status " + res.status);
+							}
+							if (movieOverlayStatus) {
+								movieOverlayStatus.textContent = "Berhasil ditambahkan ke watchlist.";
+							}
+							// refresh watchlist jika tab watchlist sedang dibuka
+							if (sections.watchlist && sections.watchlist.classList.contains("active")) {
+								loadWatchlistForCurrentUser();
+							}
+						} catch (err) {
+							console.error("Gagal tambah watchlist", err);
+							if (movieOverlayStatus) {
+								movieOverlayStatus.textContent =
+									"Gagal menambahkan ke watchlist (" + err.message + ").";
+							}
+						}
+					}
+
+				async function handleLogin() {
+					const name = (authNameInput?.value || "").trim();
+					if (!name) {
+						statusAuthEl.textContent = "Nama tidak boleh kosong.";
+						return;
+					}
+
+					const data = await safeFetch(API.users, "auth");
+					if (!data) return;
+					const items = Array.isArray(data)
+						? data
+						: Array.isArray(data.data)
+						? data.data
+						: [];
+
+					const target = normalizeName(name);
+					const found = items.find((u) =>
+						normalizeName(u.name || u.username) === target
+					);
+
+					if (!found) {
+						statusAuthEl.textContent =
+							"User tidak ditemukan. Coba daftar dulu.";
+						return;
+					}
+
+					currentUser = {
+						id: found.id,
+						name: found.name || found.username || name,
+					};
+					try {
+						localStorage.setItem("mh_user", JSON.stringify(currentUser));
+					} catch (e) {
+						console.warn("Gagal menyimpan user ke storage", e);
+					}
+					statusAuthEl.textContent = "Berhasil masuk sebagai " + currentUser.name + ".";
+					updateUserInfo();
+					setTimeout(hideAuth, 600);
+				}
+
+				async function handleRegister() {
+					const name = (authNameInput?.value || "").trim();
+					if (!name) {
+						statusAuthEl.textContent = "Nama tidak boleh kosong.";
+						return;
+					}
+
+					statusAuthEl.textContent = "Mendaftarkan user...";
+					try {
+						const res = await fetch(API.users, {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ name }),
+						});
+						if (!res.ok) {
+							throw new Error("Status " + res.status);
+						}
+						let body = null;
+						try {
+							body = await res.json();
+						} catch (e) {
+							body = null;
+						}
+
+						let created = body && body.data ? body.data : body;
+						if (!created || !created.id) {
+							// fallback: ambil lagi daftar users dan cari berdasarkan nama
+							const dataUsers = await safeFetch(API.users, "auth");
+							const items = Array.isArray(dataUsers)
+								? dataUsers
+								: Array.isArray(dataUsers?.data)
+								? dataUsers.data
+								: [];
+							created = items.find(
+								(u) => normalizeName(u.name || u.username) === normalizeName(name)
+							);
+						}
+
+						if (!created) {
+							statusAuthEl.textContent =
+								"Pendaftaran berhasil, tapi data user belum terbaca. Coba masuk ulang.";
+							return;
+						}
+
+						currentUser = {
+							id: created.id,
+							name: created.name || created.username || name,
+						};
+						try {
+							localStorage.setItem("mh_user", JSON.stringify(currentUser));
+						} catch (e) {
+							console.warn("Gagal menyimpan user ke storage", e);
+						}
+						statusAuthEl.textContent =
+							"Berhasil daftar dan masuk sebagai " + currentUser.name + ".";
+						updateUserInfo();
+						setTimeout(hideAuth, 600);
+					} catch (err) {
+						console.error("Gagal daftar", err);
+						statusAuthEl.textContent =
+							"Gagal mendaftarkan user (" + err.message + ").";
+					}
+				}
+
+				async function submitReview() {
+					if (!currentUser) {
+						statusReviewForm.textContent =
+							"Kamu harus login dulu sebelum mengirim review.";
+						showAuth();
+						return;
+					}
+
+					const movieId = reviewMovieSelect.value;
+					const rating = reviewRatingSelect.value;
+					const comment = (reviewCommentInput.value || "").trim();
+
+					if (!movieId) {
+						statusReviewForm.textContent = "Pilih film terlebih dahulu.";
+						return;
+					}
+					if (!rating) {
+						statusReviewForm.textContent = "Pilih rating terlebih dahulu.";
+						return;
+					}
+
+					statusReviewForm.textContent = "Mengirim review...";
+					try {
+						const res = await fetch(API.reviews, {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({
+								movieId: Number(movieId),
+								userId: currentUser.id,
+								username: currentUser.name,
+								rating: Number(rating),
+								comment,
+							}),
+						});
+						if (!res.ok) {
+							throw new Error("Status " + res.status);
+						}
+						let body = null;
+						try {
+							body = await res.json();
+						} catch (e) {
+							body = null;
+						}
+
+						const created = body && body.data ? body.data : body;
+						statusReviewForm.textContent = "Review berhasil dikirim.";
+						reviewCommentInput.value = "";
+						reviewRatingSelect.value = "5";
+
+						if (created) {
+							const arr = Array.isArray(cache.reviews) ? cache.reviews.slice() : [];
+							arr.unshift(created);
+							cache.reviews = arr;
+							renderReviews(arr);
+							statusEls.reviews.textContent = "Review terbaru sudah ditambahkan.";
+						}
+					} catch (err) {
+						console.error("Gagal kirim review", err);
+						statusReviewForm.textContent =
+							"Gagal mengirim review (" + err.message + ").";
+					}
+				}
+
+				function handleLogout() {
+					currentUser = null;
+					try {
+						localStorage.removeItem("mh_user");
+					} catch (e) {
+						console.warn("Gagal menghapus user dari storage", e);
+					}
+					updateUserInfo();
+					if (statusReviewForm) {
+						statusReviewForm.textContent = "";
+					}
+					cache.watchlist = null;
+					if (listEls.watchlist) {
+						listEls.watchlist.innerHTML = "";
+					}
+					if (statusEls.watchlist) {
+						statusEls.watchlist.textContent = "";
+					}
+					showAuth();
+				}
+
+				tabs.forEach((btn) => {
+					btn.addEventListener("click", () => {
+						const tabName = btn.dataset.tab;
+						setActiveTab(tabName);
+
+						if (tabName === "movies") {
+							loadMoviesIfNeeded();
+						} else if (tabName === "reviews") {
+							loadReviewsIfNeeded();
+						} else if (tabName === "watchlist") {
+							loadWatchlistForCurrentUser();
+						} else if (tabName === "users") {
+							loadUsersIfNeeded();
+						}
+					});
+				});
+
+				if (document.getElementById("btn-submit-review")) {
+					document
+						.getElementById("btn-submit-review")
+						.addEventListener("click", submitReview);
+				}
+
+				if (document.getElementById("btn-login")) {
+					document
+						.getElementById("btn-login")
+						.addEventListener("click", handleLogin);
+				}
+
+				if (document.getElementById("btn-register")) {
+					document
+						.getElementById("btn-register")
+						.addEventListener("click", handleRegister);
+				}
+
+				if (document.getElementById("btn-logout")) {
+					document
+						.getElementById("btn-logout")
+						.addEventListener("click", handleLogout);
+				}
+
+				if (document.getElementById("btn-close-movie")) {
+					document
+						.getElementById("btn-close-movie")
+						.addEventListener("click", closeMovieOverlay);
+				}
+
+				if (btnAddWatchlist) {
+					btnAddWatchlist.addEventListener("click", addCurrentMovieToWatchlist);
+				}
+
+				if (authNameInput) {
+					authNameInput.addEventListener("keyup", (ev) => {
+						if (ev.key === "Enter") {
+							handleLogin();
+						}
+					});
+				}
+				loadMoviesIfNeeded();
+				loadUserFromStorage();
+			})();
+		</script>
+	</body>
+</html>
+
