@@ -517,10 +517,13 @@
 					return;
 				}
 
+				const movies = cache.movies || [];
 				reviews.forEach(rev => {
+					const movie = movies.find(m => String(m.id) === String(rev.movieId));
+					const movieName = movie?.title || `Film ID ${rev.movieId ?? "-"}`;
 					container.appendChild(createCard(
 						rev.username || "User " + (rev.userId || "-"),
-						`Rating ${rev.rating ?? "-"} • Movie ID ${rev.movieId ?? "-"}`,
+						`Rating ${rev.rating ?? "-"} • ${movieName}`,
 						truncate(rev.comment || "", 160)
 					));
 				});
@@ -587,6 +590,7 @@
 			};
 
 			const loadReviewsIfNeeded = async () => {
+				await loadMoviesIfNeeded(); // pastikan movies sudah loaded untuk nama film
 				if (Array.isArray(cache.reviews)) {
 					renderReviews(cache.reviews);
 					return;
